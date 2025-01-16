@@ -1,34 +1,32 @@
 import { Router, type Request, type Response } from 'express';
-import weatherService from '../../service/weatherService';
-import historyService from '../../service/historyService';
-const router = Router();
-
 import HistoryService from '../../service/historyService.js';
 import WeatherService from '../../service/weatherService.js';
 
-// TODO: POST Request with city name to retrieve weather data
-router.post('/', (req: Request, res: Response) => {
-  // TODO: GET weather data from city name
-  const city = req.params.city;
-  let weather: any[] = [];
-  WeatherService.getWeatherForCity(city).then((resolved) => {
-    weather = resolved;
-  }).catch.(error) => {
-    console
-    throw new Error(`Cannot get city/weather information.`)
-  },
-  // TODO: save city to search history
-  historyService.addCity(city);
-  return weather;
+const router = Router();
+
+//body passed in via the payload
+//param/query passed in via the URL
+router.post('/', async (req: Request, res: Response) => {
+  const city = req.body.cityName;
+  const weather = await WeatherService.getWeatherForCity(city)
+  HistoryService.addCity(city);
+  return res.json(weather);
 });
 
-// TODO: GET search history
-router.get('/history', async (req: Request, res: Response) => {
+router.get('/history', async (_req: Request, res: Response) => {
   const cities = await HistoryService.getCities();
-  return cities;
+  return res.json(cities);
 });
 
-// * BONUS TODO: DELETE city from search history
-router.delete('/history/:id', async (req: Request, res: Response) => {});
+router.delete('/history/:cityId', async (req: Request, res: Response) => {
+  const cityId = req.params.cityId;
+  HistoryService.removeCity(cityId)
+  .catch((error:any) => {
+    console.log("🚀 ~ router.delete ~ error:", error)
+    throw new Error('Unable to delete city from history.')
+  })
+  return res.json(undefined)
+  //200 vs 204 return: 200 there should be something in the data, some feedback is being sent to the user. 204 still successful BUT nothing is being sent to the front-end user. 204 is less expensive.
+});
 
 export default router;

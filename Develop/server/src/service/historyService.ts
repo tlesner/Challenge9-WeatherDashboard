@@ -15,12 +15,15 @@ class City {
 class HistoryService {
   // TODO: Define a read method that reads from the searchHistory.json file
   private async read() {
+    let data: any;
     try{
-      const data = await fs.promises.readFile('db/searchHistory.json', 'utf-8');
-      return JSON.parse(data);
+      data = await fs.promises.readFile('db/searchHistory.json', 'utf-8');
   } catch (error) {
-    console.log("could not read search history")
-  }}
+    console.log("could not read search history");
+    return []
+  }
+  return JSON.parse(data);
+}
   // TODO: Define a write method that writes the updated cities array to the searchHistory.json file
   private async write(cities: City[]) {
     await fs.promises.writeFile('db/searchHistory.json', JSON.stringify(cities, null, '\t'))
@@ -42,14 +45,11 @@ class HistoryService {
       throw new Error('City Cannot be blank');
     }
     const newCity: City = {name: city, id: uuidv4() };
-      await this.getCities()
-      .then((cities) => {
-        if (cities.find((index: { name: string; }) => index.name === city)) {
-          // return;
-        }
-        const newList = [...cities, newCity];
-        this.write(newList)
-      });
+    const cities = await this.getCities()
+    if (cities.find((index: { name: string; }) => index.name === city)) {
+    }
+    const newList = [...cities, newCity];
+    this.write(newList)
   }
 
 
