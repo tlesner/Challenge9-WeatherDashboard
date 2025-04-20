@@ -1,7 +1,5 @@
 # WeatherDashboard
 
-# Challenge 8 - Vehicle Builder
-
 [![License: MPL 2.0](https://img.shields.io/badge/license-MIT-blue)](https://opensource.org/licenses/MPL-2.0)
 
 ## Description
